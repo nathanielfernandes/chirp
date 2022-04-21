@@ -19,6 +19,7 @@ impl Chip8 {
 
         match match (i, x, y, n) {
             (0x00, 0x00, 0x0E, 0x00) => self._00E0(), // clear screen
+            (0x00, 0x00, 0x0E, 0x0E) => self._00EE(), // return from subroutine
             (0x01, _, _, _) => self._1NNN(nnn),       // jump
             (0x06, _, _, _) => self._6XNN(x, nn),     // set register Vx
             (0x07, _, _, _) => self._7XNN(x, nn),     // add value to register Vx
@@ -51,7 +52,7 @@ impl Chip8 {
 
     // Add nn to Vx
     fn _7XNN(&mut self, x: usize, nn: u8) -> PC {
-        self.v[x] += nn;
+        self.v[x] = ((self.v[x] as u16) + (nn as u16)) as u8;
         PC::Next
     }
 
@@ -83,10 +84,10 @@ impl Chip8 {
         PC::Next
     }
 
-    // // Return from subroutine
-    // fn _00EE(&mut self) -> PC {
-    //     PC::Jump(self.stack.pop())
-    // }
+    // Return from subroutine
+    fn _00EE(&mut self) -> PC {
+        PC::Jump(self.stack.pop())
+    }
 
     // // Call subroutine at nnn
     // fn _2NNN(&mut self, nnn: u16) ->

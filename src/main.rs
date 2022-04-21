@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use chip8::Chip8;
 use macroquad::prelude::*;
 use std::{thread::sleep, time::Duration};
@@ -7,6 +10,7 @@ pub mod display;
 pub mod memory;
 pub mod opcodes;
 pub mod postprocessing;
+pub mod shaders;
 pub mod stack;
 
 fn window_conf() -> Conf {
@@ -20,9 +24,9 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let tickrate = 24.0;
+    let tickrate = 60.0;
     let mut chippy = Chip8::init();
-    chippy.load(0x200, include_bytes!("IBMLogo.ch8").to_vec());
+    chippy.load(0x200, include_bytes!("roms/test_opcode.ch8").to_vec());
 
     loop {
         chippy.cycle();
@@ -32,6 +36,4 @@ async fn main() {
 
         next_frame().await;
     }
-
-    // println!("{:#06X}", chippy.fetch(0x200_u16));
 }

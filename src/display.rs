@@ -1,6 +1,9 @@
 use macroquad::prelude::*;
 
-use crate::postprocessing::PostProcessing;
+use crate::{
+    postprocessing::{GfxPipeline, GfxShader},
+    shaders::{ChromaticAberration, GaussianBlur},
+};
 
 type GfxBuffer = [bool; 64 * 32];
 
@@ -8,7 +11,7 @@ pub struct Display {
     pub buffer: GfxBuffer,
     width_ratio: f32,
     height_ratio: f32,
-    post_processing: PostProcessing,
+    post_processing: GfxPipeline,
 }
 
 impl Display {
@@ -27,7 +30,11 @@ impl Display {
             buffer: Self::CLEAR,
             width_ratio: screen_width() / Self::WIDTH_F32,
             height_ratio: screen_height() / Self::HEIGHT_F32,
-            post_processing: PostProcessing::new(width, height),
+
+            post_processing: GfxPipeline::new(vec![
+                GfxShader::new(width, height, *ChromaticAberration),
+                GfxShader::new(width, height, *GaussianBlur),
+            ]),
         }
     }
 
@@ -41,7 +48,6 @@ impl Display {
         if new_wr != self.width_ratio || new_hr != self.height_ratio {
             self.width_ratio = new_wr;
             self.height_ratio = new_hr;
-            self.post_processing.update_dimensions(width, height);
         }
     }
 
@@ -76,7 +82,7 @@ impl Display {
         self.update_screen_size();
         clear_background(BLACK);
 
-        self.post_processing.apply(&|| {
+        self.post_processing.pipe(&|| {
             for y in 0..32 {
                 for x in 0..64 {
                     if self.get(x, y) {
