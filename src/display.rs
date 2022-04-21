@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 use crate::{
-    postprocessing::{GfxPipeline, GfxShader},
+    postprocessing::GfxPipeline,
     shaders::{ChromaticAberration, GaussianBlur},
 };
 
@@ -11,7 +11,7 @@ pub struct Display {
     pub buffer: GfxBuffer,
     width_ratio: f32,
     height_ratio: f32,
-    post_processing: GfxPipeline,
+    post_processing: GfxPipeline<2>,
 }
 
 impl Display {
@@ -30,11 +30,11 @@ impl Display {
             buffer: Self::CLEAR,
             width_ratio: screen_width() / Self::WIDTH_F32,
             height_ratio: screen_height() / Self::HEIGHT_F32,
-
-            post_processing: GfxPipeline::new(vec![
-                GfxShader::new(width, height, *ChromaticAberration),
-                GfxShader::new(width, height, *GaussianBlur),
-            ]),
+            post_processing: GfxPipeline::new(
+                width,
+                height,
+                &[*ChromaticAberration, *GaussianBlur],
+            ),
         }
     }
 
@@ -48,6 +48,7 @@ impl Display {
         if new_wr != self.width_ratio || new_hr != self.height_ratio {
             self.width_ratio = new_wr;
             self.height_ratio = new_hr;
+            self.post_processing.update_dimensions(width, height);
         }
     }
 
