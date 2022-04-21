@@ -1,11 +1,14 @@
 use macroquad::prelude::*;
 
+use crate::postprocessing::PostProcessing;
+
 type GfxBuffer = [bool; 64 * 32];
 
 pub struct Display {
     pub buffer: GfxBuffer,
-    pub width_ratio: f32,
-    pub height_ratio: f32,
+    width_ratio: f32,
+    height_ratio: f32,
+    post_processing: PostProcessing,
 }
 
 impl Display {
@@ -18,16 +21,28 @@ impl Display {
     pub const CLEAR: GfxBuffer = [false; (Self::WIDTH as usize) * (Self::HEIGHT as usize)];
 
     pub fn new() -> Self {
+        let width = screen_width();
+        let height = screen_height();
         Self {
             buffer: Self::CLEAR,
-            width_ratio: 0.0,
-            height_ratio: 0.0,
+            width_ratio: screen_width() / Self::WIDTH_F32,
+            height_ratio: screen_height() / Self::HEIGHT_F32,
+            post_processing: PostProcessing::new(width, height),
         }
     }
 
     pub fn update_screen_size(&mut self) {
-        self.width_ratio = screen_width() / Self::WIDTH_F32;
-        self.height_ratio = screen_height() / Self::HEIGHT_F32;
+        let width = screen_width();
+        let height = screen_height();
+
+        let new_wr = width / Self::WIDTH_F32;
+        let new_hr = height / Self::HEIGHT_F32;
+
+        if new_wr != self.width_ratio || new_hr != self.height_ratio {
+            self.width_ratio = new_wr;
+            self.height_ratio = new_hr;
+            self.post_processing.update_dimensions(width, height);
+        }
     }
 
     pub fn clear(&mut self) {
@@ -60,18 +75,21 @@ impl Display {
     pub fn draw(&mut self) {
         self.update_screen_size();
         clear_background(BLACK);
-        for y in 0..32 {
-            for x in 0..64 {
-                if self.get(x, y) {
-                    draw_rectangle(
-                        self.width_ratio * x as f32,
-                        self.height_ratio * y as f32,
-                        self.width_ratio as f32,
-                        self.height_ratio as f32,
-                        WHITE,
-                    );
+
+        self.post_processing.apply(&|| {
+            for y in 0..32 {
+                for x in 0..64 {
+                    if self.get(x, y) {
+                        draw_rectangle(
+                            self.width_ratio * x as f32,
+                            self.height_ratio * y as f32,
+                            self.width_ratio as f32,
+                            self.height_ratio as f32,
+                            WHITE,
+                        );
+                    }
                 }
             }
-        }
+        });
     }
 }

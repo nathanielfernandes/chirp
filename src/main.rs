@@ -6,13 +6,14 @@ pub mod chip8;
 pub mod display;
 pub mod memory;
 pub mod opcodes;
+pub mod postprocessing;
 pub mod stack;
 
 fn window_conf() -> Conf {
     Conf {
         window_title: "Chip8".to_owned(),
-        window_width: 1000,
-        window_height: 500,
+        window_width: 1600,
+        window_height: 800,
         ..Default::default()
     }
 }
