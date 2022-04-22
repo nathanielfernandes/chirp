@@ -48,7 +48,7 @@ const CHROMATIC_ABERRATION_FRAG: &str = "
 
     void main() {
         // CHROMATIC ABERRATION SETTINGS {{{
-        float aberrationAmount = 0.05; // (Default 0.05)
+        float aberrationAmount = 0.01; // (Default 0.05)
         // CHROMATIC ABERRATION SETTINGS }}}
 
         vec2 distFromCenter = uv - 0.5;
@@ -77,7 +77,7 @@ const GAUSSIAN_BLUR_FRAG: &str = "
         // GAUSSIAN BLUR SETTINGS {{{
         const float Directions = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
         const float Quality = 10.0; // BLUR QUALITY (Default 4.0 - More is better but slower)
-        const float Size = 3.0; // BLUR SIZE (Radius) (Default 10.0 - More is better but slower)
+        const float Size = 2.0; // BLUR SIZE (Radius) (Default 10.0 - More is better but slower)
         // GAUSSIAN BLUR SETTINGS }}}
     
         vec2 Radius = Size / vec2(1000.0, 1000.0);

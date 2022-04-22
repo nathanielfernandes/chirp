@@ -21,7 +21,9 @@ impl Display {
     pub const WIDTH_F32: f32 = Self::WIDTH as f32;
     pub const HEIGHT_F32: f32 = Self::HEIGHT as f32;
 
-    pub const CLEAR: GfxBuffer = [false; (Self::WIDTH as usize) * (Self::HEIGHT as usize)];
+    pub const LENGTH: usize = (Self::WIDTH as usize) * (Self::HEIGHT as usize);
+
+    pub const CLEAR: GfxBuffer = [false; Self::LENGTH];
 
     pub fn new() -> Self {
         let width = screen_width();
@@ -53,11 +55,24 @@ impl Display {
     }
 
     pub fn clear(&mut self) {
-        self.buffer = Self::CLEAR
+        self.buffer = Self::CLEAR;
+        // for i in 0..Self::LENGTH {
+        //     self.buffer[i] = false;
+        // }
     }
 
     #[inline(always)]
     pub fn i(x: u8, y: u8) -> usize {
+        let mut x = x;
+        if x >= Self::WIDTH {
+            x -= Self::WIDTH;
+        }
+
+        let mut y = y;
+        if y >= Self::HEIGHT {
+            y -= Self::HEIGHT;
+        }
+
         (x as usize) + (Self::WIDTH as usize) * (y as usize)
     }
 
@@ -81,22 +96,23 @@ impl Display {
 
     pub fn draw(&mut self) {
         self.update_screen_size();
-        clear_background(BLACK);
-
-        self.post_processing.pipe(&|| {
-            for y in 0..32 {
-                for x in 0..64 {
-                    if self.get(x, y) {
-                        draw_rectangle(
-                            self.width_ratio * x as f32,
-                            self.height_ratio * y as f32,
-                            self.width_ratio as f32,
-                            self.height_ratio as f32,
-                            WHITE,
-                        );
+        self.post_processing.pipe(
+            &|| {
+                for y in 0..Self::HEIGHT {
+                    for x in 0..Self::WIDTH {
+                        if self.get(x, y) {
+                            draw_rectangle(
+                                self.width_ratio * x as f32,
+                                self.height_ratio * y as f32,
+                                self.width_ratio as f32,
+                                self.height_ratio as f32,
+                                WHITE,
+                            );
+                        }
                     }
                 }
-            }
-        });
+            },
+            BLACK,
+        );
     }
 }

@@ -21,15 +21,15 @@ impl<const SIZE: usize> GfxPipeline<SIZE> {
         }
     }
 
-    pub fn pipe(&self, draw: &dyn Fn() -> ()) {
+    pub fn pipe(&self, draw: &dyn Fn() -> (), clear: Color) {
         if SIZE == 0 {
-            clear_background(TRANSPARENT);
+            clear_background(clear);
             draw();
             return;
         }
 
         set_camera(&self.camera);
-        clear_background(TRANSPARENT);
+        clear_background(clear);
         draw();
 
         if SIZE > 1 {
