@@ -31,10 +31,11 @@ impl KeyPad {
         (KeyCode::F, 0x0E),
         (KeyCode::V, 0x0F),
     ];
-    pub fn get_key() -> Option<u8> {
+    pub fn get_key(&mut self) -> Option<(u8, usize)> {
         for (key_code, value) in Self::KEYPAD_MAP {
             if is_key_down(key_code) {
-                return Some(value);
+                self.waiting = false;
+                return Some((value, self.dest_register));
             }
         }
         None
@@ -43,15 +44,6 @@ impl KeyPad {
     pub fn wait_for_key(&mut self, dest: usize) {
         self.waiting = true;
         self.dest_register = dest;
-    }
-
-    pub fn wait_cycle(&self) -> Option<(u8, usize)> {
-        if self.waiting {
-            if let Some(key) = Self::get_key() {
-                return Some((key, self.dest_register));
-            }
-        }
-        None
     }
 
     pub fn is_key_down(&self, x: u8) -> bool {
