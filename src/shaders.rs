@@ -4,7 +4,32 @@ use macroquad::{
     prelude::*,
 };
 
+use crate::postprocessing::GfxShader;
+
 lazy_static! {
+    pub static ref DEFAULT_SHADER: GfxShader = GfxShader::new(0.0, 0.0, *DefaultFrag);
+    pub static ref DefaultFrag: Material = load_material(
+        &VERTEX_SHADER,
+        "#version 100
+         precision lowp float;
+         varying vec4 color;
+         void main() {
+             gl_FragColor = color;
+         }
+        ",
+        MaterialParams {
+            pipeline_params: PipelineParams {
+                color_blend: Some(BlendState::new(
+                    Equation::Add,
+                    BlendFactor::One,
+                    BlendFactor::Value(BlendValue::SourceColor),
+                )),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    )
+    .unwrap();
     pub static ref ChromaticAberration: Material = load_material(
         &VERTEX_SHADER,
         &CHROMATIC_ABERRATION_FRAG,
@@ -48,7 +73,7 @@ const CHROMATIC_ABERRATION_FRAG: &str = "
 
     void main() {
         // CHROMATIC ABERRATION SETTINGS {{{
-        float aberrationAmount = 0.01; // (Default 0.05)
+        float aberrationAmount = 0.05; // (Default 0.05)
         // CHROMATIC ABERRATION SETTINGS }}}
 
         vec2 distFromCenter = uv - 0.5;
