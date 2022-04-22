@@ -1,6 +1,9 @@
 use crate::{display::Display, keypad::KeyPad, memory::Memory, stack::Stack};
 
 pub struct Chip8 {
+    pub hz: i32,   // assumed frequency of cpu
+    pub tick: i32, // current tick
+
     pub i: u16,           // index register
     pub pc: u16,          // program counter
     pub opcode: u16,      // current opcode
@@ -11,15 +14,17 @@ pub struct Chip8 {
     pub display: Display, // display buffer
     pub stack: Stack,     // 16 frame stack
     pub memory: Memory,   /* Memory Map
-                           0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
-                           0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
+                           0x000-0x1FF - Chip 8 interpreter
+                           0x00-0x50 - Used for the built in 4x5 pixel font set (0-F)
                            0x200-0xFFF - Program ROM and work RAM
                           */
 }
 
 impl Chip8 {
-    pub fn init() -> Self {
+    pub fn init(hz: i32) -> Self {
         Self {
+            hz,
+            tick: 0,
             i: 0,
             pc: 0x200,
             opcode: 0,
@@ -43,12 +48,25 @@ impl Chip8 {
         }
     }
 
-    pub fn cycle(&mut self) {
-        self.delay_timer = self.delay_timer.saturating_sub(1);
-        self.sound_timer = self.sound_timer.saturating_sub(1);
+    pub fn tick_timers(&mut self) {
+        self.tick += 1;
+        if self.tick % (self.hz / 60) == 0 {
+            self.delay_timer = self.delay_timer.saturating_sub(1);
+            self.sound_timer = self.sound_timer.saturating_sub(1);
+        }
 
-        if let Some((key, dest)) = self.keypad.wait_cycle() {
-            self.v[dest] = key;
+        if self.tick >= self.hz {
+            self.tick = 0;
+        }
+    }
+
+    pub fn cycle(&mut self) {
+        self.tick_timers();
+
+        if self.keypad.waiting {
+            if let Some((key, dest)) = self.keypad.get_key() {
+                self.v[dest] = key;
+            }
         } else {
             let opcode = self.fetch(self.pc);
             self.exec_opcode(opcode);
@@ -57,6 +75,12 @@ impl Chip8 {
         // if self.sound_timer > 0 {
         //     // play a beep sound
         // }
+    }
+
+    pub fn sync_cycle(&mut self, fps: i32) {
+        for _ in 0..(self.hz / fps.max(1)) {
+            self.cycle();
+        }
     }
 
     const FONT: [u8; 80] = [
