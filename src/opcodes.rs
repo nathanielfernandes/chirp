@@ -97,7 +97,7 @@ impl Chip8 {
 
     // Add nn to Vx
     fn _7XNN(&mut self, x: usize, nn: u8) -> PC {
-        self.v[x] = ((self.v[x] as u16) + (nn as u16)) as u8;
+        self.v[x] = self.v[x].wrapping_add(nn);
         PC::Next
     }
 
@@ -289,8 +289,8 @@ impl Chip8 {
     fn _FX33(&mut self, x: usize) -> PC {
         let vx = self.v[x];
         self.memory[self.i] = vx / 100;
-        self.memory[self.i + 1] = (vx % 100) / 10;
-        self.memory[self.i + 2] = vx % 10;
+        self.memory[self.i + 1] = (vx / 10) % 10;
+        self.memory[self.i + 2] = (vx % 100) % 10;
 
         PC::Next
     }
