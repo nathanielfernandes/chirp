@@ -94,25 +94,36 @@ impl Display {
         }
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self, post: bool) {
         self.update_screen_size();
-        self.post_processing.pipe(
-            &|| {
-                for y in 0..Self::HEIGHT {
-                    for x in 0..Self::WIDTH {
-                        if self.get(x, y) {
-                            draw_rectangle(
-                                self.width_ratio * x as f32,
-                                self.height_ratio * y as f32,
-                                self.width_ratio as f32,
-                                self.height_ratio as f32,
-                                WHITE,
-                            );
-                        }
+
+        const DRAW_COLOR: Color = Color {
+            r: 1.0,
+            g: 0.4,
+            b: 0.78823525,
+            a: 1.0,
+        };
+
+        let draw = &|| {
+            for y in 0..Self::HEIGHT {
+                for x in 0..Self::WIDTH {
+                    if self.get(x, y) {
+                        draw_rectangle(
+                            self.width_ratio * x as f32,
+                            self.height_ratio * y as f32,
+                            self.width_ratio as f32,
+                            self.height_ratio as f32,
+                            DRAW_COLOR,
+                        );
                     }
                 }
-            },
-            BLACK,
-        );
+            }
+        };
+
+        if post {
+            self.post_processing.pipe(&draw);
+        } else {
+            draw()
+        }
     }
 }
