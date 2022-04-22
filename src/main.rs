@@ -7,6 +7,7 @@ use std::{thread::sleep, time::Duration};
 
 pub mod chip8;
 pub mod display;
+pub mod keypad;
 pub mod memory;
 pub mod opcodes;
 pub mod postprocessing;
@@ -24,16 +25,20 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let tickrate = 60.0;
+    let target_hz: i32 = 500;
     let mut chippy = Chip8::init();
-    chippy.load(0x200, include_bytes!("roms/test_opcode.ch8").to_vec());
+
+    chippy.load_font(0x00);
+    chippy.load(0x200, include_bytes!("roms/brix.ch8").to_vec());
 
     loop {
-        chippy.cycle();
-        sleep(Duration::from_secs_f64(1.0 / tickrate as f64));
-
+        let fps = get_fps();
+        for _ in 0..(target_hz / fps) {
+            chippy.cycle();
+        }
         chippy.display.draw();
 
+        draw_text(&format!("fps: {:?}", fps), 2.0, 20.0, 30.0, GREEN);
         next_frame().await;
     }
 }
