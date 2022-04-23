@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::{
     postprocessing::GfxPipeline,
-    shaders::{ChromaticAberration, GaussianBlur},
+    shaders::{Bloom, ChromaticAberration, GaussianBlur},
 };
 
 type GfxBuffer = [bool; 64 * 32];
@@ -11,7 +11,7 @@ pub struct Display {
     pub buffer: GfxBuffer,
     width_ratio: f32,
     height_ratio: f32,
-    post_processing: GfxPipeline<2>,
+    post_processing: GfxPipeline<1>,
 }
 
 impl Display {
@@ -32,11 +32,7 @@ impl Display {
             buffer: Self::CLEAR,
             width_ratio: screen_width() / Self::WIDTH_F32,
             height_ratio: screen_height() / Self::HEIGHT_F32,
-            post_processing: GfxPipeline::new(
-                width,
-                height,
-                &[*ChromaticAberration, *GaussianBlur],
-            ),
+            post_processing: GfxPipeline::new(width, height, &[(*Bloom, true)]),
         }
     }
 

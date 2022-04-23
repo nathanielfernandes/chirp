@@ -8,10 +8,10 @@ pub struct GfxPipeline<const SIZE: usize> {
 }
 
 impl<const SIZE: usize> GfxPipeline<SIZE> {
-    pub fn new(width: f32, height: f32, pipeline: &[Material; SIZE]) -> Self {
+    pub fn new(width: f32, height: f32, pipeline: &[(Material, bool); SIZE]) -> Self {
         let mut new_pipeline = [*DEFAULT_SHADER; SIZE];
-        for (i, &shader) in pipeline.iter().enumerate() {
-            new_pipeline[i] = GfxShader::new(width, height, shader)
+        for (i, &(shader, impose)) in pipeline.iter().enumerate() {
+            new_pipeline[i] = GfxShader::new(width, height, shader, impose)
         }
         Self {
             pipeline: new_pipeline,
@@ -48,10 +48,11 @@ pub struct GfxShader {
     pub shader: Material,
     pub buffer: RenderTarget,
     pub camera: Camera2D,
+    pub impose: bool,
 }
 
 impl GfxShader {
-    pub fn new(width: f32, height: f32, shader: Material) -> Self {
+    pub fn new(width: f32, height: f32, shader: Material, impose: bool) -> Self {
         let buffer = render_target(width as u32, height as u32);
         let camera = Camera2D {
             render_target: Some(buffer),
@@ -62,6 +63,7 @@ impl GfxShader {
             shader,
             buffer,
             camera,
+            impose,
         }
     }
 
@@ -98,9 +100,21 @@ impl GfxShader {
     }
 
     pub fn apply(&self, draw: &dyn Fn() -> ()) {
+        if self.impose {
+            self.impose_apply(draw);
+            return;
+        }
         self.open();
         draw();
         self.close();
+    }
+
+    pub fn impose_apply(&self, draw: &dyn Fn() -> ()) {
+        self.open();
+        draw();
+        self.close();
+        draw();
+        self.draw();
     }
 }
 
