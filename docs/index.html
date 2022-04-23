@@ -1,0 +1,89 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Chip8 - Emulator</title>
+    <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #ff66c9;
+            --width: 520px;
+            --height: 264px;
+
+            --glow: 0px 0px 10px 2px var(--accent);
+        }
+
+        * {
+            color: var(--accent);
+            background: black;
+            background-color: black;
+            font-family: 'VT323', monospace;
+
+
+        }
+
+        body {
+            width: var(--width);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        canvas {
+            margin: 4px;
+            overflow: hidden;
+            z-index: 0;
+            outline: none;
+            width: calc(100% - 8px);
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            padding: 0;
+            text-shadow: 0px 0px 4px var(--accent);
+        }
+        p {
+            font-size: 1.5rem;
+            margin: 0;
+            padding: 0;
+            text-shadow: 0px 0px 4px var(--accent);
+        }
+
+        a {
+            font-size: 1.5rem;
+            text-decoration: none;
+            text-decoration-line: underline;
+        }
+
+        .screen {
+            margin-top: 1rem;
+            width: var(--width);
+            height: var(--height);
+            border: 1px solid var(--accent);
+            box-shadow: var(--glow);
+
+        }
+    </style>
+</head>
+
+<body>
+    <main> 
+        <h1>CHIP-8</h1>
+        <p>A CHIP-8 emulator written in Rust, and compiled to WASM.
+            <a href="https://github.com/nathanielfernandes/chirp">source</a>
+
+
+
+        </p>
+
+        <div class="screen">
+            <canvas id="glcanvas" tabindex='1'></canvas>
+        </div>
+        <script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script>
+        <script>load("chirp.wasm");</script>
+    </main>
+
+</body>
+
+</html>

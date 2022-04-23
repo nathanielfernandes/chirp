@@ -27,13 +27,13 @@ async fn main() {
     let mut chippy = Chip8::init(500);
 
     chippy.load_font(0x00);
-    chippy.load(0x200, include_bytes!("roms/invaders.ch8").to_vec());
+    chippy.load(0x200, include_bytes!("roms/brix.ch8").to_vec());
 
     loop {
         let fps = get_fps();
 
         chippy.sync_cycle(fps);
-        chippy.display.draw(false);
+        chippy.display.draw(true);
 
         // draw_text(&format!("fps: {:?}", fps), 2.0, 20.0, 30.0, GREEN);
         next_frame().await;
