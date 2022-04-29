@@ -1,7 +1,6 @@
-# Chip8 Emulator - WIP
+# Chip-8 Emulator
 
-A chip8 emulator written in rust. <br/>
+A Chip-8 emulator written in Rust and compiled to WASM<br/>
+You can play with it [**here**](https://nathanielfernandes.ca/chirp/)
 
-### Screenshots
-
-![](https://cdn.discordapp.com/attachments/830269354649452564/967219273254699138/unknown.png)
+![](https://cdn.discordapp.com/attachments/749779629643923548/969687202806263868/unknown.png)
