@@ -3,24 +3,53 @@
 <head>
     <meta charset="utf-8">
     <title>Chip8 - Emulator</title>
-    <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
 
     <style>
         :root {
-            --accent: #ff66c9;
-            --width: 520px;
-            --height: 264px;
+            --accent: rgba(255, 102, 201, 1.0);
+            /* --ewidth: 512px; */
+            /* --eheight: 256px; */
 
-            --glow: 0px 0px 10px 2px var(--accent);
+            --ewidth: 60vw;
+            --eheight: calc(var(--ewidth) / 2.0);
+            --emargin: 4px;
+            --width: calc(var(--ewidth) + var(--emargin) * 2);
+            --height: calc(var(--eheight) + var(--emargin) * 2);
+
+
+            --m: calc(var(--width) / 64);
+            --v: calc(var(--width) / 20);
+
+
+            /* --glow: 0px 0px 10px 2px var(--accent); */
+            /* --glow_text: 0px 0px 4px var(--accent); */
         }
 
         * {
             color: var(--accent);
             background: black;
             background-color: black;
-            font-family: 'VT323', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
 
+        select {
+            padding: 0.4rem 1rem;
+            border: 2px solid var(--accent);
+            font-size: 1.3rem;
+            cursor: pointer;
+            outline: none;
+        }
 
+        button {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--accent);
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: var(--accent);
+            color:black;
         }
 
         body {
@@ -34,54 +63,140 @@
             overflow: hidden;
             z-index: 0;
             outline: none;
-            width: calc(100% - 8px);
+            width: var(--ewidth);
+            height: var(--eheight);
         }
 
         h1 {
-            font-size: 4rem;
+            font-size: 3rem;
             margin: 0;
             padding: 0;
-            text-shadow: 0px 0px 4px var(--accent);
+            text-shadow: var(--glow_text);
         }
         p {
             font-size: 1.5rem;
             margin: 0;
             padding: 0;
-            text-shadow: 0px 0px 4px var(--accent);
+            text-shadow: var(--glow_text);
         }
 
         a {
-            font-size: 1.5rem;
+            /* font-size: 1.5rem; */
             text-decoration: none;
             text-decoration-line: underline;
+        }
+
+        h6 {
+            margin: 0;
         }
 
         .screen {
             margin-top: 1rem;
             width: var(--width);
             height: var(--height);
-            border: 1px solid var(--accent);
+            border: 2px solid var(--accent);
             box-shadow: var(--glow);
-
         }
+
+        .controls {
+            margin-top: 0.5rem;
+        }
+
+        .controls input {
+            width: 40%;
+        }
+
+        .memory {
+            margin-top: 0.1rem;
+            width: var(--width);
+            grid-template-columns: repeat(64, calc(var(--m))); 
+            grid-template-rows: repeat(16, calc(var(--m)));
+            display: grid;
+        }
+
+        .memory div {
+            width: calc(var(--m) - 1px);
+            height: calc(var(--m) - 1px);
+            background-color: rgba(255, 102, 201, 0.1);
+        }
+
+        .registers {
+            margin-top: 0.1rem;
+            justify-content: space-between;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .registers div {
+            width: var(--v);
+            height: var(--v);
+            text-align: center;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            font-size: calc(var(--v)/2);
+            border: 2px solid var(--accent);
+        }
+
+        #hz {
+            font-size: 1.3rem;
+        }
+
+        #rom_name {
+            margin-bottom: 0;
+        }
+
+        #rom_keys {
+            margin-top: 0;
+        }
+
     </style>
 </head>
 
 <body>
     <main> 
         <h1>CHIP-8</h1>
-        <p>A CHIP-8 emulator written in Rust, and compiled to WASM.
-            <a href="https://github.com/nathanielfernandes/chirp">source</a>
+        <p>A CHIP-8 emulator written in Rust, and compiled to WASM.</p>
+        <h6>Nathaniel Fernandes <a href="https://github.com/nathanielfernandes/chirp">source</a></h6>
 
 
-
-        </p>
+        <h2 id="rom_name"></h2>
+        <ul id="rom_keys"></ul>
 
         <div class="screen">
             <canvas id="glcanvas" tabindex='1'></canvas>
         </div>
+
+        <div class="controls">
+            <button onclick="load_rom()">Load ROM</button>
+            <select name="rom" id="rom">
+                <option value="brix">Brix</option>
+                <option value="invaders">Invaders</option>
+                <option value="tetris">Tetris</option>
+                <option value="pong">Pong</option>
+                <option value="tictactoe">TicTacToe</option>
+                <option value="ibmlogo">IBM Logo</option>
+                <option value="particles">Particles</option>
+                <option value="keypad">Key Pad</option>
+            </select>
+
+            <input type="range" min="60" max="3000" value="500" class="hz" oninput="update_hz(this.value)">
+            <span id="hz">500Hz</span>
+            <!-- <button onclick="toggle_bloom()">Toggle Bloom</button> -->
+        </div>
+
+        <p style="margin-top: 0.5rem">Registers</p>
+        <div class="registers" id="registers"></div>
+
+        <p style="margin-top: 0.5rem">Memory View</p>
+        <div class="memory" id="memory"></div>
+
+
+
         <script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script>
-        <script>load("chirp.wasm");</script>
+        <script src="https://not-fl3.github.io/miniquad-samples/sapp_jsutils.js"></script>
+        <script src="./plugin.js"></script>
+        <script>load("chirp.wasm")</script>
     </main>
 
 </body>

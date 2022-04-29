@@ -20,6 +20,8 @@ impl Chip8 {
         let nnn = opcode & 0x0FFF;
 
         match match (i, x, y, n) {
+            (0x00, 0x00, 0x00, 0x00) => PC::Jump(self.pc),
+
             (0x00, 0x00, 0x0E, 0x00) => self._00E0(), // clear screen
             (0x00, 0x00, 0x0E, 0x0E) => self._00EE(), // return from subroutine
 
@@ -114,7 +116,7 @@ impl Chip8 {
         self.v[0x0F] = 0x00;
 
         for b in 0..n as u16 {
-            let sprite_data = self.memory[(self.i + b) as usize];
+            let sprite_data = self.memory.get(self.i + b);
             let mut x = x;
             for i in (0..8).rev() {
                 if ((sprite_data >> i) & 1) != 0 {
@@ -288,9 +290,9 @@ impl Chip8 {
     // get each number place and store in memory
     fn _FX33(&mut self, x: usize) -> PC {
         let vx = self.v[x];
-        self.memory[self.i] = vx / 100;
-        self.memory[self.i + 1] = (vx / 10) % 10;
-        self.memory[self.i + 2] = (vx % 100) % 10;
+        self.memory.set(self.i, vx / 100);
+        self.memory.set(self.i + 1, (vx / 10) % 10);
+        self.memory.set(self.i + 2, (vx % 100) % 10);
 
         PC::Next
     }
@@ -298,7 +300,7 @@ impl Chip8 {
     // store registers to memory
     fn _FX55(&mut self, x: usize) -> PC {
         for i in 0..x + 1 {
-            self.memory[self.i + (i as u16)] = self.v[i];
+            self.memory.set(self.i + (i as u16), self.v[i]);
         }
         PC::Next
     }
@@ -306,7 +308,7 @@ impl Chip8 {
     // load memory to registers
     fn _FX65(&mut self, x: usize) -> PC {
         for i in 0..x + 1 {
-            self.v[i] = self.memory[self.i + (i as u16)];
+            self.v[i] = self.memory.get(self.i + (i as u16));
         }
         PC::Next
     }

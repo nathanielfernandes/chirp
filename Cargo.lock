@@ -80,6 +80,7 @@ version = "0.1.0"
 dependencies = [
  "lazy_static",
  "macroquad",
+ "sapp-jsutils",
 ]
 
 [[package]]
@@ -375,6 +376,12 @@ checksum = "081e6e5261c9ac2e938979b6a854a53b439f065fc3c897205ce7e69d3028b4a9"
 dependencies = [
  "cc",
 ]
+
+[[package]]
+name = "sapp-jsutils"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb8ababa867431fa6c0a178248bfe7e77b5d1de357c9848883ba8e3946bb21d4"
 
 [[package]]
 name = "sapp-linux"

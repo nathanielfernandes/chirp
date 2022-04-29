@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 macroquad = "*"
 lazy_static = "1.4.0"
+sapp-jsutils = "0.1"

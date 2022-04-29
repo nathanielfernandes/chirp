@@ -1,9 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{
-    postprocessing::GfxPipeline,
-    shaders::{Bloom, ChromaticAberration, GaussianBlur},
-};
+use crate::{postprocessing::GfxPipeline, shaders::Bloom}; // ChromaticAberration, GaussianBlur
 
 type GfxBuffer = [bool; 64 * 32];
 
@@ -11,7 +8,7 @@ pub struct Display {
     pub buffer: GfxBuffer,
     width_ratio: f32,
     height_ratio: f32,
-    post_processing: GfxPipeline<1>,
+    post_processing: GfxPipeline<1>, // never ended up using this
 }
 
 impl Display {

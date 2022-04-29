@@ -1,6 +1,8 @@
 use macroquad::prelude::*;
 use std::usize;
 
+// never ended up using this
+
 use crate::shaders::DEFAULT_SHADER;
 
 pub struct GfxPipeline<const SIZE: usize> {
